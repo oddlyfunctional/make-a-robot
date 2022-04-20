@@ -109,11 +109,19 @@ const getElementById = (id) => {
     }
     return el;
 };
+const randomInt = (max) => Math.floor(Math.random() * max);
+const makeRandomPosition = (stage) => {
+    const bounds = (0, Stage_1.getBounds)(stage);
+    return {
+        x: randomInt(bounds.right - bounds.left),
+        y: randomInt(bounds.bottom - bounds.top),
+    };
+};
 const reset = (stage) => {
     state.stage = stage;
     state.turn = 0;
     state.robot = {
-        position: { x: 0, y: 0 },
+        position: makeRandomPosition(stage),
         oil: 0,
         stage: stage,
         acted: false,
