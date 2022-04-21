@@ -3,8 +3,10 @@ import { Stage, getCell, getBounds, easy, medium, hard } from './Stage'
 import * as Vector from './Vector'
 
 import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup"
+import { keymap } from "@codemirror/view"
 import { javascript } from "@codemirror/lang-javascript"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
+import { indentWithTab } from "@codemirror/commands"
 
 // @ts-ignore
 import { githubDark } from '@ddietr/codemirror-themes/dist/theme/github-dark'
@@ -208,7 +210,9 @@ const saveProgram = (program: string) => {
     localStorage.setItem('program', program)
 }
 
-const defaultProgram = "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}"
+const defaultProgram = `const program = (robot) => {
+  /* WRITE YOUR PROGRAM HERE */
+}`
 
 const loadProgram = () => {
     return localStorage.getItem('program') || defaultProgram
@@ -242,7 +246,7 @@ const robotCompletions = (context: CompletionContext) => {
             { label: "robot.moveLeft()", type: "function", info: "Moves left 1 square. Uses action." },
             { label: "robot.drill()", type: "function", info: "Drills under the current position to get oil. Uses action." },
             { label: "robot.useSensor()", type: "function", info: "Returns a measurement of how much oil there is in the surroundings. Doesn't use action." },
-            { label: "robot.getPosition()", type: "function", info: "Returns the robot's position. Doesn't use action." },
+            { label: "robot.getPosition()", type: "function", info: "Rgeturns the robot's position. Doesn't use action." },
         ]
     }
 }
@@ -254,6 +258,7 @@ let editor = new EditorView({
             javascript(),
             githubDark,
             autocompletion({ override: [robotCompletions] }),
+            keymap.of([indentWithTab]),
             EditorView.updateListener.of(update => {
                 if (update.docChanged) {
                     saveOnUpdate(update.state.doc.toString())

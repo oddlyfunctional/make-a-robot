@@ -28,8 +28,10 @@ const Robot_1 = require("./Robot");
 const Stage_1 = require("./Stage");
 const Vector = __importStar(require("./Vector"));
 const basic_setup_1 = require("@codemirror/basic-setup");
+const view_1 = require("@codemirror/view");
 const lang_javascript_1 = require("@codemirror/lang-javascript");
 const autocomplete_1 = require("@codemirror/autocomplete");
+const commands_1 = require("@codemirror/commands");
 // @ts-ignore
 const github_dark_1 = require("@ddietr/codemirror-themes/dist/theme/github-dark");
 const getElementById = (id) => {
@@ -191,7 +193,9 @@ stageSelect.addEventListener('change', () => {
 const saveProgram = (program) => {
     localStorage.setItem('program', program);
 };
-const defaultProgram = "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}";
+const defaultProgram = `const program = (robot) => {
+  /* WRITE YOUR PROGRAM HERE */
+}`;
 const loadProgram = () => {
     return localStorage.getItem('program') || defaultProgram;
 };
@@ -220,7 +224,7 @@ const robotCompletions = (context) => {
             { label: "robot.moveLeft()", type: "function", info: "Moves left 1 square. Uses action." },
             { label: "robot.drill()", type: "function", info: "Drills under the current position to get oil. Uses action." },
             { label: "robot.useSensor()", type: "function", info: "Returns a measurement of how much oil there is in the surroundings. Doesn't use action." },
-            { label: "robot.getPosition()", type: "function", info: "Returns the robot's position. Doesn't use action." },
+            { label: "robot.getPosition()", type: "function", info: "Rgeturns the robot's position. Doesn't use action." },
         ]
     };
 };
@@ -231,6 +235,7 @@ let editor = new basic_setup_1.EditorView({
             (0, lang_javascript_1.javascript)(),
             github_dark_1.githubDark,
             (0, autocomplete_1.autocompletion)({ override: [robotCompletions] }),
+            view_1.keymap.of([commands_1.indentWithTab]),
             basic_setup_1.EditorView.updateListener.of(update => {
                 if (update.docChanged) {
                     saveOnUpdate(update.state.doc.toString());
