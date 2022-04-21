@@ -1,42 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
     <title>Document</title>
 </head>
+
 <body>
-    <canvas id="canvas" width="600" height="400"></canvas>
-    <div class="controls">
-        <div>
-            <label>
-                Difficulty:
-                <select id="stage">
-                    <option value="easy" selected>Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </label>
-        </div>
+    <div class="wrapper">
+        <div class="container box">
+            <h1>make a robot</h1>
+            <div class="screen">
+                <canvas id="canvas" width="600" height="400"></canvas>
 
-        <div>
-            <label>
-                Speed:
-                <input type="range" min="1" max="10" id="speed" value="1">
-                <strong id="speed-display"></strong>
-            </label>
-        </div>
+                <ul class="info">
+                    <li><strong>turn:</strong><span id="turn">0</span></li>
+                    <li><strong>position:</strong><span id="position">(0, 0)</span></li>
+                    <li><strong>oil:</strong><span id="oil">0</span></li>
+                </ul>
+            </div>
 
-        <div id="program">
-        </div>
+            <div class="controls box">
+                <label>
+                    Stage:
+                    <select id="stage">
+                        <option value="easy" selected>Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </label>
 
-        <div>
-            <button id="start">Start</button>
-            <button id="stop">Stop</button>
+                <label>
+                    Speed:
+                    <input type="range" min="1" max="10" id="speed" value="1">
+                    <strong id="speed-display"></strong>
+                </label>
+
+                <div>
+                    <button id="start">▶</button>
+                    <button id="stop">◼</button>
+                </div>
+            </div>
+
+            <div class="box" id="program"></div>
         </div>
     </div>
 
     <script src="./index.js" type="module"></script>
 </body>
+
 </html>

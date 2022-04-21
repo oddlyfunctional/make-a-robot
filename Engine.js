@@ -29,6 +29,15 @@ const Stage_1 = require("./Stage");
 const Vector = __importStar(require("./Vector"));
 const basic_setup_1 = require("@codemirror/basic-setup");
 const lang_javascript_1 = require("@codemirror/lang-javascript");
+// @ts-ignore
+const github_dark_1 = require("@ddietr/codemirror-themes/dist/theme/github-dark");
+const getElementById = (id) => {
+    const el = document.getElementById(id);
+    if (el == null) {
+        throw new Error(`Can't find element with id ${id}`);
+    }
+    return el;
+};
 const state = {
     turn: 0,
     robot: null,
@@ -38,17 +47,24 @@ const state = {
     canvas: null,
     context: null,
 };
-const SIZE = 10;
+let CELL_WIDTH = 20;
+const getOffset = (stage) => {
+    var _a;
+    const bounds = (0, Stage_1.getBounds)(stage);
+    const stageWidth = (bounds.right - bounds.left + 1) * CELL_WIDTH;
+    return ((((_a = state.canvas) === null || _a === void 0 ? void 0 : _a.width) || 0) - stageWidth) / 2;
+};
 const renderStage = (context, stage) => {
+    const offset = getOffset(stage);
     for (let i = 0; i < stage.length; i++) {
         for (let j = 0; j < stage[0].length; j++) {
-            const x = j * SIZE;
-            const y = i * SIZE;
+            const x = j * CELL_WIDTH + offset;
+            const y = i * CELL_WIDTH;
             const grey = 255 - (0, Stage_1.getCell)(stage, { x: j, y: i }) * 255;
             context.fillStyle = `rgb(${grey}, ${grey}, ${grey})`;
-            context.fillRect(x, y, SIZE, SIZE);
+            context.fillRect(x, y, CELL_WIDTH, CELL_WIDTH);
             context.beginPath();
-            context.rect(x, y, SIZE, SIZE);
+            context.rect(x, y, CELL_WIDTH, CELL_WIDTH);
             context.strokeStyle = 'black';
             context.stroke();
         }
@@ -56,30 +72,28 @@ const renderStage = (context, stage) => {
 };
 const renderRobot = (context, robot) => {
     context.beginPath();
-    context.arc(robot.position.x * SIZE + SIZE / 2, robot.position.y * SIZE + SIZE / 2, SIZE / 2, 0, 2 * Math.PI);
-    context.fillStyle = 'red';
+    const x = robot.position.x * CELL_WIDTH + CELL_WIDTH / 2 + getOffset(robot.stage);
+    const y = robot.position.y * CELL_WIDTH + CELL_WIDTH / 2;
+    const radius = CELL_WIDTH / 2 * 0.8;
+    context.arc(x, y, radius, 0, 2 * Math.PI);
+    context.fillStyle = '#ff3b69';
     context.fill();
+    context.strokeStyle = '#690c22';
+    context.stroke();
 };
-const renderHUD = (context, robot) => {
-    const bounds = (0, Stage_1.getBounds)(robot.stage);
-    const offset = bounds.right * SIZE + 50;
-    const rowHeight = 20;
-    context.fillStyle = 'black';
-    context.font = '16px Arial';
-    let rows = [
-        `turn: ${state.turn}`,
-        `pos: ${Vector.toString(robot.position)}`,
-        `oil: ${robot.oil}`,
-    ];
-    rows.forEach((row, index) => {
-        context.fillText(row, offset, rowHeight * (index + 1));
-    });
+const turnEl = getElementById('turn');
+const positionEl = getElementById('position');
+const oilEl = getElementById('oil');
+const renderHUD = (robot) => {
+    turnEl.textContent = state.turn.toString();
+    positionEl.textContent = Vector.toString(robot.position);
+    oilEl.textContent = robot.oil.toString();
 };
 const render = (canvas, context, robot) => {
     context.clearRect(0, 0, canvas.width, canvas.height);
     renderStage(context, robot.stage);
     renderRobot(context, robot);
-    renderHUD(context, robot);
+    renderHUD(robot);
 };
 const loop = () => {
     const { robot, program, canvas, context } = state;
@@ -102,13 +116,6 @@ const bindSpeedControl = (control, display, callback) => {
     control.addEventListener('change', listener);
     listener();
 };
-const getElementById = (id) => {
-    const el = document.getElementById(id);
-    if (el == null) {
-        throw new Error(`Can't find element with id ${id}`);
-    }
-    return el;
-};
 const randomInt = (max) => Math.floor(Math.random() * max);
 const makeRandomPosition = (stage) => {
     const bounds = (0, Stage_1.getBounds)(stage);
@@ -116,6 +123,15 @@ const makeRandomPosition = (stage) => {
         x: randomInt(bounds.right - bounds.left),
         y: randomInt(bounds.bottom - bounds.top),
     };
+};
+const setCellWidth = (stage) => {
+    var _a, _b;
+    const canvasWidth = ((_a = state.canvas) === null || _a === void 0 ? void 0 : _a.width) || 1;
+    const canvasHeight = ((_b = state.canvas) === null || _b === void 0 ? void 0 : _b.height) || 1;
+    const bounds = (0, Stage_1.getBounds)(stage);
+    const width = canvasWidth / (bounds.right - bounds.left + 1);
+    const height = canvasHeight / (bounds.bottom - bounds.top + 1);
+    CELL_WIDTH = Math.min(width, height);
 };
 const reset = (stage) => {
     state.stage = stage;
@@ -126,6 +142,7 @@ const reset = (stage) => {
         stage: stage,
         acted: false,
     };
+    setCellWidth(stage);
 };
 const start = (id) => {
     const canvas = getElementById(id);
@@ -170,12 +187,39 @@ stageSelect.addEventListener('change', () => {
     }
     reset(stage);
 });
+const saveProgram = (program) => {
+    localStorage.setItem('program', program);
+};
+const defaultProgram = "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}";
+const loadProgram = () => {
+    return localStorage.getItem('program') || defaultProgram;
+};
+const throttle = (f, timeFrame) => {
+    var lastTime = 0;
+    return function (...args) {
+        var now = Date.now();
+        if (now - lastTime >= timeFrame) {
+            f(...args);
+            lastTime = now;
+        }
+    };
+};
+const saveOnUpdate = throttle(saveProgram, 1000);
 let editor = new basic_setup_1.EditorView({
     state: basic_setup_1.EditorState.create({
-        extensions: [basic_setup_1.basicSetup, (0, lang_javascript_1.javascript)()],
-        doc: "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}"
+        extensions: [
+            basic_setup_1.basicSetup,
+            (0, lang_javascript_1.javascript)(),
+            github_dark_1.githubDark,
+            basic_setup_1.EditorView.updateListener.of(update => {
+                if (update.docChanged) {
+                    saveOnUpdate(update.state.doc.toString());
+                }
+            }),
+        ],
+        doc: loadProgram()
     }),
-    parent: document.getElementById('program')
+    parent: document.getElementById('program'),
 });
 const startButton = getElementById('start');
 const stopButton = getElementById('stop');

@@ -2,9 +2,19 @@ import { Robot, Runner, makeRunner } from './Robot'
 import { Stage, getCell, getBounds, easy, medium, hard } from './Stage'
 import * as Vector from './Vector'
 
-import {EditorState, EditorView, basicSetup} from "@codemirror/basic-setup"
-import {javascript} from "@codemirror/lang-javascript"
+import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup"
+import { javascript } from "@codemirror/lang-javascript"
 
+// @ts-ignore
+import { githubDark } from '@ddietr/codemirror-themes/dist/theme/github-dark'
+
+const getElementById = (id: string) => {
+    const el = document.getElementById(id)
+    if (el == null) {
+        throw new Error(`Can't find element with id ${id}`)
+    }
+    return el
+}
 
 type program = (_: Runner) => void
 
@@ -22,25 +32,33 @@ const state: state = {
     turn: 0,
     robot: null,
     stage: null,
-    program: (_: Runner) => {},
+    program: (_: Runner) => { },
     running: false,
     canvas: null,
     context: null,
 }
 
-const SIZE = 10
+let CELL_WIDTH = 20
+
+const getOffset = (stage: Stage) => {
+    const bounds = getBounds(stage)
+    const stageWidth = (bounds.right - bounds.left + 1) * CELL_WIDTH
+    return ((state.canvas?.width || 0) - stageWidth) / 2
+}
 
 const renderStage = (context: CanvasRenderingContext2D, stage: Stage) => {
-    for(let i = 0; i < stage.length; i++) {
+    const offset = getOffset(stage)
+
+    for (let i = 0; i < stage.length; i++) {
         for (let j = 0; j < stage[0].length; j++) {
-            const x = j * SIZE
-            const y = i * SIZE
-            const grey = 255 - getCell(stage, {x: j, y: i}) * 255
+            const x = j * CELL_WIDTH + offset
+            const y = i * CELL_WIDTH
+            const grey = 255 - getCell(stage, { x: j, y: i }) * 255
             context.fillStyle = `rgb(${grey}, ${grey}, ${grey})`
-            context.fillRect(x, y, SIZE, SIZE)
+            context.fillRect(x, y, CELL_WIDTH, CELL_WIDTH)
 
             context.beginPath()
-            context.rect(x, y, SIZE, SIZE)
+            context.rect(x, y, CELL_WIDTH, CELL_WIDTH)
             context.strokeStyle = 'black'
             context.stroke()
         }
@@ -49,34 +67,31 @@ const renderStage = (context: CanvasRenderingContext2D, stage: Stage) => {
 
 const renderRobot = (context: CanvasRenderingContext2D, robot: Robot) => {
     context.beginPath()
-    context.arc(robot.position.x * SIZE + SIZE / 2, robot.position.y * SIZE + SIZE / 2, SIZE / 2, 0, 2 * Math.PI)
-    context.fillStyle = 'red'
+    const x = robot.position.x * CELL_WIDTH + CELL_WIDTH / 2 + getOffset(robot.stage)
+    const y = robot.position.y * CELL_WIDTH + CELL_WIDTH / 2
+    const radius = CELL_WIDTH / 2 * 0.8
+    context.arc(x, y, radius, 0, 2 * Math.PI)
+    context.fillStyle = '#ff3b69'
     context.fill()
+    context.strokeStyle = '#690c22'
+    context.stroke()
 }
 
-const renderHUD = (context: CanvasRenderingContext2D, robot: Robot) => {
-    const bounds = getBounds(robot.stage)
-    const offset = bounds.right * SIZE + 50
-    const rowHeight = 20
+const turnEl = getElementById('turn')
+const positionEl = getElementById('position')
+const oilEl = getElementById('oil')
 
-    context.fillStyle = 'black'
-    context.font = '16px Arial'
-
-    let rows = [
-        `turn: ${state.turn}`,
-        `pos: ${Vector.toString(robot.position)}`,
-        `oil: ${robot.oil}`,
-    ]
-    rows.forEach((row, index) => {
-        context.fillText(row, offset, rowHeight * (index + 1))
-    })
+const renderHUD = (robot: Robot) => {
+    turnEl.textContent = state.turn.toString()
+    positionEl.textContent = Vector.toString(robot.position)
+    oilEl.textContent = robot.oil.toString()
 }
 
 const render = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, robot: Robot) => {
     context.clearRect(0, 0, canvas.width, canvas.height)
     renderStage(context, robot.stage)
     renderRobot(context, robot)
-    renderHUD(context, robot)
+    renderHUD(robot)
 }
 
 const loop = () => {
@@ -87,7 +102,7 @@ const loop = () => {
 
     robot.acted = false
     render(canvas, context, robot)
-    
+
     if (!state.running) return;
     state.turn++
     program(makeRunner(robot))
@@ -104,14 +119,6 @@ const bindSpeedControl = (control: HTMLInputElement, display: HTMLElement, callb
     listener()
 }
 
-const getElementById = (id: string) => {
-    const el = document.getElementById(id)
-    if (el == null) {
-        throw new Error(`Can't find element with id ${id}`)
-    }
-    return el
-}
-
 const randomInt = (max: number) => Math.floor(Math.random() * max)
 
 const makeRandomPosition = (stage: Stage): Vector.Vector => {
@@ -123,6 +130,17 @@ const makeRandomPosition = (stage: Stage): Vector.Vector => {
     }
 }
 
+const setCellWidth = (stage: Stage) => {
+    const canvasWidth = state.canvas?.width || 1
+    const canvasHeight = state.canvas?.height || 1
+    const bounds = getBounds(stage)
+
+    const width = canvasWidth / (bounds.right - bounds.left + 1)
+    const height = canvasHeight / (bounds.bottom - bounds.top + 1)
+
+    CELL_WIDTH = Math.min(width, height)
+}
+
 const reset = (stage: Stage) => {
     state.stage = stage
     state.turn = 0
@@ -132,11 +150,13 @@ const reset = (stage: Stage) => {
         stage: stage,
         acted: false,
     }
+
+    setCellWidth(stage)
 }
 
 export const start = (id: string) => {
     const canvas = getElementById(id) as HTMLCanvasElement
-    
+
     const context = canvas.getContext("2d") as CanvasRenderingContext2D;
     if (context == null) {
         throw new Error("Element isn't a canvas")
@@ -183,13 +203,46 @@ stageSelect.addEventListener('change', () => {
     reset(stage)
 })
 
+const saveProgram = (program: string) => {
+    localStorage.setItem('program', program)
+}
+
+const defaultProgram = "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}"
+
+const loadProgram = () => {
+    return localStorage.getItem('program') || defaultProgram
+}
+
+const throttle = (f: (...args: any) => void, timeFrame: number) => {
+    var lastTime = 0;
+    return function (...args: any) {
+        var now = Date.now();
+        if (now - lastTime >= timeFrame) {
+            f(...args);
+            lastTime = now;
+        }
+    };
+}
+
+const saveOnUpdate = throttle(saveProgram, 1000)
+
 let editor = new EditorView({
     state: EditorState.create({
-      extensions: [basicSetup, javascript()],
-      doc: "const program = (robot) => {\n\t/* WRITE YOUR PROGRAM HERE */\n}"
+        extensions: [
+            basicSetup,
+            javascript(),
+            githubDark,
+            EditorView.updateListener.of(update => {
+                if (update.docChanged) {
+                    saveOnUpdate(update.state.doc.toString())
+                }
+            }),
+        ],
+        doc: loadProgram()
     }),
-    parent: document.getElementById('program') as Element
-  })
+    parent: document.getElementById('program') as Element,
+
+})
 
 const startButton = getElementById('start') as HTMLButtonElement
 const stopButton = getElementById('stop') as HTMLButtonElement
