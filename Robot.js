@@ -50,14 +50,16 @@ exports.moveLeft = act(robot => move(robot, Vector.LEFT));
 exports.drill = act((robot) => {
     robot.oil += Stage.getCell(robot.stage, robot.position);
 });
-exports.useSensor = act((robot) => {
+const useSensor = (robot) => {
     return {
+        center: Stage.getCell(robot.stage, robot.position),
         top: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.UP)),
         right: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.RIGHT)),
         bottom: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.DOWN)),
         left: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.LEFT)),
     };
-});
+};
+exports.useSensor = useSensor;
 const makeRunner = (robot) => {
     return {
         moveUp: () => (0, exports.moveUp)(robot),

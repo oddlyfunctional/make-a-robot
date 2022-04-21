@@ -9,6 +9,7 @@ export type Robot = {
 }
 
 export type Measurement = {
+  center: number;
   top: number;
   right: number;
   bottom: number;
@@ -41,14 +42,15 @@ export const moveLeft = act(robot => move(robot, Vector.LEFT))
 export const drill = act((robot: Robot) => {
   robot.oil += Stage.getCell(robot.stage, robot.position)
 })
-export const useSensor = act((robot: Robot): Measurement => {
+export const useSensor = (robot: Robot): Measurement => {
   return {
+    center: Stage.getCell(robot.stage, robot.position),
     top: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.UP)),
     right: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.RIGHT)),
     bottom: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.DOWN)),
     left: Stage.getCell(robot.stage, Vector.add(robot.position, Vector.LEFT)),
   }
-})
+}
 
 
 export type Runner = {
