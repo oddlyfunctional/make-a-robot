@@ -4,6 +4,7 @@ import * as Vector from './Vector'
 
 import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup"
 import { javascript } from "@codemirror/lang-javascript"
+import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 
 // @ts-ignore
 import { githubDark } from '@ddietr/codemirror-themes/dist/theme/github-dark'
@@ -226,12 +227,33 @@ const throttle = (f: (...args: any) => void, timeFrame: number) => {
 
 const saveOnUpdate = throttle(saveProgram, 1000)
 
+const robotCompletions = (context: CompletionContext) => {
+    let word = context.matchBefore(/\w*/)
+    if (!word || word.from == word.to && !context.explicit) {
+        return null
+    }
+
+    return {
+        from: word.from,
+        options: [
+            { label: "robot.moveUp()", type: "function", info: "Moves up 1 square. Uses action." },
+            { label: "robot.moveRight()", type: "function", info: "Moves right 1 square. Uses action." },
+            { label: "robot.moveDown()", type: "function", info: "Moves down 1 square. Uses action." },
+            { label: "robot.moveLeft()", type: "function", info: "Moves left 1 square. Uses action." },
+            { label: "robot.drill()", type: "function", info: "Drills under the current position to get oil. Uses action." },
+            { label: "robot.useSensor()", type: "function", info: "Returns a measurement of how much oil there is in the surroundings. Doesn't use action." },
+            { label: "robot.getPosition()", type: "function", info: "Returns the robot's position. Doesn't use action." },
+        ]
+    }
+}
+
 let editor = new EditorView({
     state: EditorState.create({
         extensions: [
             basicSetup,
             javascript(),
             githubDark,
+            autocompletion({ override: [robotCompletions] }),
             EditorView.updateListener.of(update => {
                 if (update.docChanged) {
                     saveOnUpdate(update.state.doc.toString())

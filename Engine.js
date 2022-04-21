@@ -29,6 +29,7 @@ const Stage_1 = require("./Stage");
 const Vector = __importStar(require("./Vector"));
 const basic_setup_1 = require("@codemirror/basic-setup");
 const lang_javascript_1 = require("@codemirror/lang-javascript");
+const autocomplete_1 = require("@codemirror/autocomplete");
 // @ts-ignore
 const github_dark_1 = require("@ddietr/codemirror-themes/dist/theme/github-dark");
 const getElementById = (id) => {
@@ -205,12 +206,31 @@ const throttle = (f, timeFrame) => {
     };
 };
 const saveOnUpdate = throttle(saveProgram, 1000);
+const robotCompletions = (context) => {
+    let word = context.matchBefore(/\w*/);
+    if (!word || word.from == word.to && !context.explicit) {
+        return null;
+    }
+    return {
+        from: word.from,
+        options: [
+            { label: "robot.moveUp()", type: "function", info: "Moves up 1 square. Uses action." },
+            { label: "robot.moveRight()", type: "function", info: "Moves right 1 square. Uses action." },
+            { label: "robot.moveDown()", type: "function", info: "Moves down 1 square. Uses action." },
+            { label: "robot.moveLeft()", type: "function", info: "Moves left 1 square. Uses action." },
+            { label: "robot.drill()", type: "function", info: "Drills under the current position to get oil. Uses action." },
+            { label: "robot.useSensor()", type: "function", info: "Returns a measurement of how much oil there is in the surroundings. Doesn't use action." },
+            { label: "robot.getPosition()", type: "function", info: "Returns the robot's position. Doesn't use action." },
+        ]
+    };
+};
 let editor = new basic_setup_1.EditorView({
     state: basic_setup_1.EditorState.create({
         extensions: [
             basic_setup_1.basicSetup,
             (0, lang_javascript_1.javascript)(),
             github_dark_1.githubDark,
+            (0, autocomplete_1.autocompletion)({ override: [robotCompletions] }),
             basic_setup_1.EditorView.updateListener.of(update => {
                 if (update.docChanged) {
                     saveOnUpdate(update.state.doc.toString());
