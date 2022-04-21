@@ -270,3 +270,13 @@ stopButton.addEventListener('click', () => {
     state.running = false
     loop()
 })
+
+const modal = getElementById('modal')
+
+getElementById('help-button').addEventListener('click', () => {
+    modal.classList.remove('disabled')
+})
+
+getElementById('modal-close').addEventListener('click', () => {
+    modal.classList.add('disabled')
+})

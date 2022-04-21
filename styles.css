@@ -11,8 +11,6 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-
-    /* background-color: #e5e5f7; */
 opacity: 0.8;
 background-image: radial-gradient(#9320ae 1px, transparent 0.5px), radial-gradient(#9320ae 1px, #da9ae9 0.5px);
 background-size: 20px 20px;
@@ -20,7 +18,7 @@ background-position: 0 0,10px 10px;
 }
 
 .box {
-    box-shadow: 7px 7px 0px 0px #666;
+    box-shadow: 7px 7px 0px 0px #484848;
     border: 2px solid black;
 }
 
@@ -36,6 +34,7 @@ background-position: 0 0,10px 10px;
     padding-right: 3em;
     padding-bottom: 2em;
     box-shadow: 7px 7px 0 #666;
+    position: relative;
 }
 
 .controls {
@@ -103,4 +102,69 @@ button:disabled {
 .info > li {
     list-style: none;
     margin-right: 2em;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.disabled {
+    display: none;
+}
+
+.modal-content {
+    background-color: white;
+    max-width: 700px;
+    padding: 2em 4em;
+    max-height: 800px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-controls {
+    padding-top: 1em;
+    border-top: 1px dashed #666;
+}
+
+#help-button {
+    position: absolute;
+    top: 2em;
+    right: 2em;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.help {
+    overflow-y: auto;
+}
+
+.help pre {
+    display: flex;
+    justify-content: center;
+}
+
+.row {
+    display: flex;
+}
+
+.row > div:first-child {
+    text-align: right;
+    /* flex: 1; */
+    width: 30%;
+}
+
+.row > div:nth-child(2) {
+    margin-left: 2em;
+    flex: 1;
+    /* width: 50% */
 }

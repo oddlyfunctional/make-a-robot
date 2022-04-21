@@ -67,7 +67,8 @@ const makeRunner = (robot) => {
         moveDown: () => (0, exports.moveDown)(robot),
         moveLeft: () => (0, exports.moveLeft)(robot),
         drill: () => (0, exports.drill)(robot),
-        useSensor: () => (0, exports.useSensor)(robot)
+        useSensor: () => (0, exports.useSensor)(robot),
+        getPosition: () => (Object.assign({}, robot.position)),
     };
 };
 exports.makeRunner = makeRunner;

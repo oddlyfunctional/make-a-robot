@@ -60,6 +60,7 @@ export type Runner = {
   moveLeft: (_: void) => void,
   drill: (_: void) => void,
   useSensor: (_: void) => Measurement,
+  getPosition: (_: void) => Vector.Vector,
 }
 
 export const makeRunner = (robot: Robot): Runner => {
@@ -69,6 +70,7 @@ export const makeRunner = (robot: Robot): Runner => {
     moveDown: () => moveDown(robot),
     moveLeft: () => moveLeft(robot),
     drill: () => drill(robot),
-    useSensor: () => useSensor(robot)
+    useSensor: () => useSensor(robot),
+    getPosition: () => ({...robot.position}),
   }
 }
