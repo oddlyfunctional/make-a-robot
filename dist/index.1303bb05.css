@@ -1,0 +1,165 @@
+html, body {
+  color: #333;
+  margin: 0;
+  font-family: Courier New, Courier, monospace;
+}
+
+.wrapper {
+  min-height: 100vh;
+  opacity: .8;
+  background-color: #da9ae9;
+  background-image: radial-gradient(#9320ae 1px, #0000 .5px), radial-gradient(#9320ae 1px, #da9ae9 .5px);
+  background-position: 0 0, 10px 10px;
+  background-size: 20px 20px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.box {
+  border: 2px solid #000;
+  box-shadow: 7px 7px #484848;
+}
+
+.container {
+  max-width: 800px;
+  background-color: #fff;
+  flex-direction: column;
+  align-items: center;
+  margin: 2em;
+  padding: 2em 3em;
+  display: flex;
+  position: relative;
+  box-shadow: 7px 7px #666;
+}
+
+.controls {
+  justify-content: space-between;
+  align-self: stretch;
+  align-items: center;
+  margin-bottom: 1em;
+  padding: 1em;
+  display: flex;
+}
+
+#program {
+  align-self: stretch;
+}
+
+label {
+  text-transform: lowercase;
+  align-items: center;
+  font-weight: bold;
+  display: flex;
+}
+
+label input, label select {
+  margin-left: 10px;
+}
+
+button {
+  cursor: pointer;
+  text-transform: lowercase;
+  background-color: #fff;
+  border: 2px solid #000;
+  padding: 5px 10px;
+  font-weight: bold;
+  box-shadow: 3px 3px #666;
+}
+
+button:active {
+  transform: translateY(-2px);
+}
+
+button:hover:enabled {
+  color: #fff;
+  background-color: #000;
+}
+
+button:disabled {
+  cursor: default;
+  color: #ccc;
+  border-color: #ccc;
+}
+
+.screen {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2em;
+  display: flex;
+}
+
+.info {
+  padding: 0;
+  display: flex;
+}
+
+.info > li {
+  margin-right: 2em;
+  list-style: none;
+}
+
+.modal {
+  height: 100%;
+  width: 100%;
+  background-color: #00000080;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.modal.disabled {
+  display: none;
+}
+
+.modal-content {
+  max-width: 700px;
+  max-height: 800px;
+  background-color: #fff;
+  flex-direction: column;
+  padding: 2em 4em;
+  display: flex;
+}
+
+.modal-controls {
+  border-top: 1px dashed #666;
+  padding-top: 1em;
+}
+
+#help-button {
+  position: absolute;
+  top: 2em;
+  right: 2em;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.help {
+  overflow-y: auto;
+}
+
+.help pre {
+  justify-content: center;
+  display: flex;
+}
+
+.row {
+  display: flex;
+}
+
+.row > div:first-child {
+  text-align: right;
+  width: 30%;
+}
+
+.row > div:nth-child(2) {
+  flex: 1;
+  margin-left: 2em;
+}
+
+/*# sourceMappingURL=index.1303bb05.css.map */
